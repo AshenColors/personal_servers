@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  lldap:
+    image: nitnelave/lldap:stable
+    # Change this to the user:group you want.
+    ports:
+      # For LDAP
+      - "3890:3890"
+      # For the web front-end
+      - "17170:17170"
+    volumes:
+      - lldap_data:/data
+      # Alternatively, you can mount a local folder
+      # - "./lldap_data:/data"
+    configs:
+      - source: lldap_config
+        target: /data/lldap_config.toml
+    environment:
+      - LLDAP_JWT_SECRET=/run/secrets/lldap_jwt
+      - LLDAP_LDAP_USER_PASS_FILE=/run/secrets/lldap_pass
+      - LLDAP_LDAP_BASE_DN=dc=example,dc=com
+    secrets:
+      - lldap_pass
+      - lldap_jwt
+
+configs:
+  lldap_config:
+    file: "./lldap_config.toml"
+
+secrets:
+  lldap_pass:
+    file: "./secrets/admin.sec"
+  lldap_jwt:
+    file: "./secrets/jwt.sec"
+
+volumes:
+  lldap_data:
+    driver: local

@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+    inadyn:
+        image: 'troglobit/inadyn:latest'
+        secrets:
+            - source: inadyn_config
+              target: /etc/inadyn.conf
+              
+secrets:
+    inadyn_config: 
+        file: ./inadyn.conf.sec
