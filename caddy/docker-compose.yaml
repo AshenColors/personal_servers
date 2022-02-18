@@ -1,7 +1,8 @@
-version: "3.7"
+version: "3.8"
 services:
-  caddy:
-    image: lucaslorentz/caddy-docker-proxy:ci-alpine
+  app:
+    build: ./caddy-security-proxy
+    image: cloud.canister.io:5000/ashenblue/caddy-security-proxy
     ports:
       - 80:80
       - 443:443

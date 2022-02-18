@@ -26,4 +26,6 @@ finally work out shared persistence, as funny as it would be global syncthing /v
 Notes on setting up Caddy:
 During development, set `caddy.tls: "internal"` to use self-signed certificates instead of spamming Let's Encrypt.
 
-When deploying a stack, Docker Swarm adds the stack name as a prefix to all the resources named in the docker-compose.yaml. Keep your folder organization neat to help keep track of this--always launch a stack with the same name as its folder, or references may break.
+We need both the caddy-docker-proxy and caddy-security plugins to have Caddy run double-duty. Authelia 
+
+When deploying a stack, Docker Swarm adds the stack name as a prefix to all the resources named in the docker-compose.yaml. Keep your folder organization neat to help keep track of this--always launch a stack with the same name as its folder, or references may break. Anything with `external: true` will need the stack prefix included to function correctly.
