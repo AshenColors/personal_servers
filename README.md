@@ -17,15 +17,20 @@ It came to me in a flash while experimenting with yet another docker-compose.yam
 Everything had suggested using a single node Docker Swarm cluster for its orchestration capabilities (health checks, etc). But if I used a *second* node visible to the public internet, and connected them via a magic VPN like zerotier, then I could push services from my desktop node to the cloud VPS and have it act as a sort of weird bastion server. No matter which node a service used, the routing mesh would make sure it goes to the right place, and with my RPi i could make a 3rd manager-only node at home that would allow the cluster to just keep chugging.
 
 THE PLAN:
-caddy to lldap
-caddy to authelia to lldap
-get a flow going to netdata
-add the new node
-finally work out shared persistence, as funny as it would be global syncthing /var/lib/docker/volumes probably isn't a good idea
+- caddy to lldap
+- caddy to ~~authelia~~ caddy, *again*, to lldap
+- get an authorization flow going to a netdata deploy
+- add the new node
+- finally work out shared persistence (as funny as it would be global `syncthing /var/lib/docker/volumes` probably isn't a good idea)
 
 Notes on setting up Caddy:
+
 During development, set `caddy.tls: "internal"` to use self-signed certificates instead of spamming Let's Encrypt.
 
-We need both the caddy-docker-proxy and caddy-security plugins to have Caddy run double-duty. Authelia 
+We need both the caddy-docker-proxy and caddy-security plugins to have Caddy run double-duty. Authelia is no longer necessary with caddy-security. 
 
 When deploying a stack, Docker Swarm adds the stack name as a prefix to all the resources named in the docker-compose.yaml. Keep your folder organization neat to help keep track of this--always launch a stack with the same name as its folder, or references may break. Anything with `external: true` will need the stack prefix included to function correctly.
+
+Other notes:
+
+Docker compose/stacks deploy now supports multiple files. You can put your production changes in a second `docker-compose.prod.yaml` with overrides like Kustomizer does. This will be perfect to change things over to the live domain when you're ready to deploy For Real. You'll also have to set `caddy.tls` to your email to get Let's Encrypt certificates issued.

@@ -1,4 +1,12 @@
 version: "3.8"
+
+# Include additional caddyfile configuration for caddy-security
+configs:
+  caddy-basic-content:
+    file: ./Caddyfile_security # or whatever you want the name to be
+    labels:
+      caddy:
+
 services:
   app:
     build: ./caddy-security-proxy
