@@ -22,3 +22,8 @@ caddy to authelia to lldap
 get a flow going to netdata
 add the new node
 finally work out shared persistence, as funny as it would be global syncthing /var/lib/docker/volumes probably isn't a good idea
+
+Notes on setting up Caddy:
+During development, set `caddy.tls: "internal"` to use self-signed certificates instead of spamming Let's Encrypt.
+
+When deploying a stack, Docker Swarm adds the stack name as a prefix to all the resources named in the docker-compose.yaml. Keep your folder organization neat to help keep track of this--always launch a stack with the same name as its folder, or references may break.

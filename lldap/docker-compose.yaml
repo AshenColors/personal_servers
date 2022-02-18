@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  app:
+    image: nitnelave/lldap:stable
+    volumes:
+      - data:/data
+      # Alternatively, you can mount a local folder
+      # - "./lldap_data:/data"
+    networks:
+      - caddy_public
+    configs:
+      - source: app_config
+        target: /data/lldap_config.toml
+    environment:
+      - LLDAP_JWT_SECRET=/run/secrets/app_jwt
+      - LLDAP_LDAP_USER_PASS_FILE=/run/secrets/app_pass
+      - LLDAP_LDAP_BASE_DN=dc=example,dc=com
+    secrets:
+      - app_pass
+      - app_jwt
+    labels:
+      caddy: "lldap.dev.test"
+      caddy.reverse_proxy: "{{upstreams http 17170}}"
+      caddy.tls: "internal"
+
+configs:
+  app_config:
+    file: "./lldap_config.toml"
+
+secrets:
+  app_pass:
+    file: "./secrets/admin.sec"
+  app_jwt:
+    file: "./secrets/jwt.sec"
+
+volumes:
+  data:
+    driver: local
+
+networks:
+  caddy_public:
+    external: true

@@ -1,0 +1,14 @@
+version: '3.7'
+services:
+  whoami:
+    image: jwilder/whoami
+    networks:
+      - caddy_public
+    labels:
+      caddy: whoami.dev.test
+      caddy.reverse_proxy: "{{upstreams 8000}}"
+      caddy.tls: "internal"
+
+networks:
+  caddy_public:
+    external: true
