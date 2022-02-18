@@ -5,6 +5,9 @@ services:
         secrets:
             - source: app_config
               target: /etc/inadyn.conf
+        deploy:
+            mode: replicated
+            replicas: 1
 
 secrets:
     app_config:

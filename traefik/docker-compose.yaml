@@ -22,7 +22,7 @@ services:
       - letsencrypt_traefik:/acme
     configs:
       - source: app_config
-        target: /etc/traefik/traefik.toml
+        target: /etc/traefik/traefik.yaml
     networks:
       - traefik_public
 
@@ -46,7 +46,7 @@ services:
 
 configs:
   app_config:
-    file: ./traefik.toml
+    file: ./traefik.yaml
 
 volumes:
   letsencrypt_traefik:

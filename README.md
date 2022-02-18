@@ -25,12 +25,10 @@ THE PLAN:
 
 Notes on setting up Caddy:
 
-During development, set `caddy.tls: "internal"` to use self-signed certificates instead of spamming Let's Encrypt.
-
-We need both the caddy-docker-proxy and caddy-security plugins to have Caddy run double-duty. Authelia is no longer necessary with caddy-security. 
-
-When deploying a stack, Docker Swarm adds the stack name as a prefix to all the resources named in the docker-compose.yaml. Keep your folder organization neat to help keep track of this--always launch a stack with the same name as its folder, or references may break. Anything with `external: true` will need the stack prefix included to function correctly.
+We just ended up using traefik lmao
 
 Other notes:
+
+When deploying a stack, Docker Swarm adds the stack name as a prefix to all the resources named in the docker-compose.yaml. Keep your folder organization neat to help keep track of this--always launch a stack with the same name as its folder, or references may break. Anything with `external: true` will need the stack prefix included to function correctly.
 
 Docker compose/stacks deploy now supports multiple files. You can put your production changes in a second `docker-compose.prod.yaml` with overrides like Kustomizer does. This will be perfect to change things over to the live domain when you're ready to deploy For Real. You'll also have to set `caddy.tls` to your email to get Let's Encrypt certificates issued.
