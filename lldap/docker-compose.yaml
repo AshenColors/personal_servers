@@ -7,8 +7,11 @@ services:
       - data:/data
       # Alternatively, you can mount a local folder
       # - "./lldap_data:/data"
-    networks:
-      - caddy_public
+    ports:
+      # For the web front-end
+      - "17170:17170"
+    # networks:
+    #   - traefik_public
     configs:
       - source: app_config
         target: /data/lldap_config.toml
@@ -20,9 +23,10 @@ services:
       - app_pass
       - app_jwt
     labels:
-      caddy: "lldap.dev.test"
-      caddy.reverse_proxy: "{{upstreams http 17170}}"
-      caddy.tls: "internal"
+      - "traefik.enable=true"
+      - "traefik.http.routers.lldap.rule=Host(`lldap.dev.test`)"
+      - "traefik.http.routers.lldap.entrypoints=https"
+      - "traefik.http.services.lldap.loadbalancer.server.port=17170"
 
 configs:
   app_config:
@@ -38,6 +42,6 @@ volumes:
   data:
     driver: local
 
-networks:
-  caddy_public:
-    external: true
+# networks:
+#   traefik_public:
+#     external: true
