@@ -62,14 +62,6 @@ server:
   ## This is disabled by default if either /app/.healthcheck.env or /app/healthcheck.sh do not exist.
   disable_healthcheck: false
 
-  ## Authelia by default doesn't accept TLS communication on the server port. This section overrides this behaviour.
-  tls:
-    ## The path to the DER base64/PEM format private key.
-    key: ""
-
-    ## The path to the DER base64/PEM format public certificate.
-    certificate: ""
-
 ##
 ## Log Configuration
 ##
@@ -236,16 +228,17 @@ authentication_backend:
 access_control:
   ## Default policy can either be 'bypass', 'one_factor', 'two_factor' or 'deny'. It is the policy applied to any
   ## resource if there is no policy to be applied to the user.
-  default_policy: deny
   rules:
     ## Rules applied to everyone
-    - domain: traefik.dev.test
-      subject: group:weedlords
+    - domain: "traefik.dev.test"
       policy: one_factor
-    - domain:
-        - whoami.dev.test
-        - auth.dev.test
+    - domain: "lldap.dev.test"
+      policy: one_factor
+    - domain: "sync.dev.test"
+      policy: one_factor
+    - domain: "whoami.dev.test"
       policy: bypass
+  default_policy: one_factor
 
 ##
 ## Session Provider Configuration

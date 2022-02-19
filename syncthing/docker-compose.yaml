@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  app:
+    image: 'syncthing/syncthing:latest'
+    volumes:
+      - '/var/lib/docker/volumes:/var/syncthing'
+      # need some place to persist settings per node
+      # this doesn't work yet, at least on wsl
+      - '/etc/syncthing:/var/syncthing/config'
+    networks:
+      - traefik_public
+    deploy:
+      mode: global
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.syncthing.rule=Host(`sync.dev.test`)"
+        - "traefik.http.routers.syncthing.entrypoints=https"
+        - "traefik.http.services.syncthing.loadbalancer.server.port=8384"
+        - "traefik.http.routers.syncthing.middlewares=authelia@docker"
+
+networks:
+  traefik_public:
+    external: true
