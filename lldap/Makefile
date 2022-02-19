@@ -1,7 +1,9 @@
+up:
+	docker stack deploy -c ./docker-compose.yaml $(notdir $(CURDIR))
+
 down:
-	docker stack rm lldap
+	docker stack rm $(notdir $(CURDIR))
 
-up: down
-	docker stack deploy -c ./docker-compose.yaml lldap
+restart: down up
 
-.PHONY: up down 
+.PHONY: up down restart

@@ -1,8 +1,10 @@
+up:
+	docker stack deploy -c ./make-network.yaml $(notdir $(CURDIR))
+	docker stack deploy -c ./docker-compose.yaml $(notdir $(CURDIR))
+
 down:
-	-docker stack rm traefik
+	-docker stack rm $(notdir $(CURDIR))
 
-up: down
-	docker stack deploy -c ./make-network.yaml traefik
-	docker stack deploy -c ./docker-compose.yaml traefik
+restart: down up
 
-.PHONY: up down 
+.PHONY: up down restart
