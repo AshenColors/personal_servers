@@ -1,0 +1,13 @@
+version: '3.3'
+services:
+  app:
+    image: containous/whoami
+    networks:
+      - caddy
+    labels:
+      caddy: rpiavalon.local
+      caddy.reverse_proxy: "{{upstreams 80}}"
+
+networks:
+  caddy:
+    external: true
