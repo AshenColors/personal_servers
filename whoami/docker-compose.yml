@@ -6,7 +6,7 @@ services:
       - caddy
     labels:
       caddy: rpiavalon.local
-      caddy.reverse_proxy: "{{upstreams 80}}"
+      caddy.reverse_proxy: "/whoami {{upstreams 80}}"
 
 networks:
   caddy:

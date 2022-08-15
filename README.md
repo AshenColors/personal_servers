@@ -9,5 +9,14 @@ My main goals in self-hosting are:
 Current plan:
 Caddy as reverse proxy for ingress/SSL
 Nextcloud for groupware/identity provider
-dnsmasq so NAT loopback works right
+bought the domain already
 rig up the real domain to Caddy for proper SSL
+dnsmasq so NAT loopback works right once i have a home gateway that allows the DNS server to be changed
+fail2ban or crowdsec to harden
+no clever GUI tools this time, so I'll need to set up Promethus (or something) for observability and pretty plots
+also: backups and the "can i spin this repo up on some rando cloud server" test
+
+TODO: remove hardcoded passwords and get .env 'secrets' working before exposing to internet
+
+Note: because there are no subdomains in mDNS, applications live in various directories of webroot. This can cause URL issues.
+Nextcloud needed to be manually told the webroot with overwritewebroot and overwrite.cli.root in the ncconfig volume

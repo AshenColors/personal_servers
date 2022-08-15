@@ -1,0 +1,46 @@
+version: "3"
+services:
+  app:
+    image: linuxserver/nextcloud:php8
+    environment:
+      - TZ=America/Chicago
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ncconfig:/config
+      - ncdata:/data
+    networks:
+      - caddy
+      - nextcloud
+    labels:
+        caddy: rpiavalon.local
+        caddy.reverse_proxy: "/nextcloud/* {{upstreams https}}"
+        caddy.reverse_proxy.transport: http
+        caddy.reverse_proxy.transport.tls_insecure_skip_verify: ""
+    restart: unless-stopped
+
+  db:
+    image: linuxserver/mariadb:latest
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Chicago
+      - MYSQL_PASSWORD=43@QfwtgypvyK
+      - MYSQL_ROOT_PASSWORD=AR2iev7Pkm^qh
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+    volumes:
+      - dbconfig:/config
+    networks:
+      - nextcloud
+    restart: unless-stopped
+    
+networks:
+  caddy:
+    external: true
+  nextcloud:
+
+volumes:
+  dbconfig:
+  ncconfig:
+  ncdata:
