@@ -8,7 +8,7 @@ services:
       - default        
     # see: https://github.com/nextcloud/documentation/blob/master/admin_manual/configuration_server/reverse_proxy_configuration.rst  
     labels:
-      caddy: rpiavalon.local
+      caddy: "${REAL_DOMAIN}"
       caddy.header: /*
       caddy.header.Strict-Transport-Security: '"max-age=15552000;"'
       caddy.redir_0: /nextcloud /nextcloud/ 301
@@ -35,6 +35,8 @@ services:
       # and: https://old.reddit.com/r/NextCloud/comments/s3skdn/nextcloud_behind_caddy_as_a_reverse_proxy_using/hsnj5wh/
       - TRUSTED_PROXIES=172.29.0.69
       - OVERWRITEWEBROOT=/nextcloud
+    env_file:
+      - .env
     depends_on:
       - db
       - redis
