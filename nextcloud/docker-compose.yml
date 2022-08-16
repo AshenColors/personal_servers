@@ -1,46 +1,80 @@
 version: "3"
 services:
   app:
-    image: linuxserver/nextcloud:php8
-    environment:
-      - TZ=America/Chicago
-      - PUID=1000
-      - PGID=1000
-    volumes:
-      - ncconfig:/config
-      - ncdata:/data
+    image: nextcloud:latest
+    restart: unless-stopped
     networks:
       - caddy
-      - nextcloud
+      - default        
+    # see: https://github.com/nextcloud/documentation/blob/master/admin_manual/configuration_server/reverse_proxy_configuration.rst  
     labels:
-        caddy: rpiavalon.local
-        caddy.reverse_proxy: "/nextcloud/* {{upstreams https}}"
-        caddy.reverse_proxy.transport: http
-        caddy.reverse_proxy.transport.tls_insecure_skip_verify: ""
-    restart: unless-stopped
+      caddy: rpiavalon.local
+      caddy.redir: /nextcloud /nextcloud/
+      caddy.handle_path: /nextcloud/*
+      caddy.handle_path.0_reverse_proxy: "{{upstreams 80}}"
+      # see: https://github.com/lucaslorentz/caddy-docker-proxy/issues/114
+      caddy.header: /*
+      # see: https://docs.nextcloud.com/server/23/admin_manual/installation/harden_server.html#enable-http-strict-transport-security
+      caddy.header.Strict-Transport-Security: '"max-age=15552000;"'
+      # see: https://docs.nextcloud.com/server/23/admin_manual/issues/general_troubleshooting.html#service-discovery
+      # https://github.com/lucaslorentz/caddy-docker-proxy/issues/222
+      caddy.rewrite_0: /nextcloud/.well-known/carddav /nextcloud/remote.php/dav
+      caddy.rewrite_1: /nextcloud/.well-known/caldav /nextcloud/remote.php/dav
+    volumes:
+      - ncdata:/var/www/html
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_DB=nextcloud
+      - POSTGRES_USER=$DB_USER
+      - POSTGRES_PASSWORD=$DB_PASS
+      - REDIS_HOST=redis
+      - SMTP_HOST=smtp.sendgrid.net 
+      - SMTP_NAME=apikey
+      - SMTP_PASSWORD=$SMTP_PASS
+      # See: https://hub.docker.com/_/nextcloud/
+      - APACHE_DISABLE_REWRITE_IP=1
+      # See: https://github.com/nextcloud/documentation/issues/7005
+      # and: https://old.reddit.com/r/NextCloud/comments/s3skdn/nextcloud_behind_caddy_as_a_reverse_proxy_using/hsnj5wh/
+      - TRUSTED_PROXIES=172.29.0.69
+      - OVERWRITEWEBROOT=/nextcloud
+    depends_on:
+      - db
+      - redis
 
   db:
-    image: linuxserver/mariadb:latest
+    image: postgres:latest
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=America/Chicago
-      - MYSQL_PASSWORD=43@QfwtgypvyK
-      - MYSQL_ROOT_PASSWORD=AR2iev7Pkm^qh
-      - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER=nextcloud
+      POSTGRES_USER: $DB_USER
+      POSTGRES_PASSWORD: $DB_PASS
     volumes:
-      - dbconfig:/config
+      - dbdata:/var/lib/postgresql/data
     networks:
-      - nextcloud
+      - default
     restart: unless-stopped
     
+  redis:
+    image: redis:latest
+    restart: unless-stopped 
+    networks:
+      - default
+
+  cron:
+    image: nextcloud:latest
+    restart: always
+    volumes:
+      - ncdata:/var/www/html
+    entrypoint: /cron.sh
+    depends_on:
+      - db
+      - redis
+    networks:
+      - default
+
 networks:
   caddy:
     external: true
-  nextcloud:
+  default:
 
 volumes:
-  dbconfig:
-  ncconfig:
   ncdata:
+  dbdata:

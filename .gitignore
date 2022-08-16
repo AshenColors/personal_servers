@@ -1,2 +1,3 @@
 *.sec
-.obsidian/
+*.env
+.vscode/settings.json
