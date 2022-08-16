@@ -9,17 +9,15 @@ services:
     # see: https://github.com/nextcloud/documentation/blob/master/admin_manual/configuration_server/reverse_proxy_configuration.rst  
     labels:
       caddy: rpiavalon.local
-      caddy.redir: /nextcloud /nextcloud/
+      caddy.header: /*
+      caddy.header.Strict-Transport-Security: '"max-age=15552000;"'
+      caddy.redir_0: /nextcloud /nextcloud/ 301
+      caddy.redir_1: /.well-known/carddav /nextcloud/remote.php/dav 301
+      caddy.redir_2: /.well-known/caldav /nextcloud/remote.php/dav 301
+      caddy.redir_3: /.well-known/webfinger /nextcloud/index.php/.well-known/webfinger 301
+      caddy.redir_4: /.well-known/nodeinfo  /nextcloud/index.php/.well-known/nodeinfo 301
       caddy.handle_path: /nextcloud/*
       caddy.handle_path.0_reverse_proxy: "{{upstreams 80}}"
-      # see: https://github.com/lucaslorentz/caddy-docker-proxy/issues/114
-      caddy.header: /*
-      # see: https://docs.nextcloud.com/server/23/admin_manual/installation/harden_server.html#enable-http-strict-transport-security
-      caddy.header.Strict-Transport-Security: '"max-age=15552000;"'
-      # see: https://docs.nextcloud.com/server/23/admin_manual/issues/general_troubleshooting.html#service-discovery
-      # https://github.com/lucaslorentz/caddy-docker-proxy/issues/222
-      caddy.rewrite_0: /nextcloud/.well-known/carddav /nextcloud/remote.php/dav
-      caddy.rewrite_1: /nextcloud/.well-known/caldav /nextcloud/remote.php/dav
     volumes:
       - ncdata:/var/www/html
     environment:
@@ -64,9 +62,6 @@ services:
     volumes:
       - ncdata:/var/www/html
     entrypoint: /cron.sh
-    depends_on:
-      - db
-      - redis
     networks:
       - default
 
