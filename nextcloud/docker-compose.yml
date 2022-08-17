@@ -42,17 +42,19 @@ services:
       - db
       - redis
 
-  collabora:
-    image: collabora/code 
-    networks:
-      - default
-    environment:
-      - 'extra_params=--o:ssl.enable=false'
-    labels:
-      caddy: "collabora.${REAL_DOMAIN}"
-      caddy.header: /*
-      caddy.header.Strict-Transport-Security: '"max-age=15552000;"'
-      caddy.reverse_proxy: "{{upstreams}} 9980"
+#  collabora:
+#    image: collabora/code 
+#    networks:
+#      - caddy
+#      - default
+#    environment:
+#      - 'extra_params=--o:ssl.enable=false'
+#    labels:
+#      caddy: "collabora.${REAL_DOMAIN}"
+#      caddy.tls.dns: "vultr ${VULTR_API_TOKEN}"
+#      caddy.header: /*
+#      caddy.header.Strict-Transport-Security: '"max-age=15552000;"'
+#      caddy.reverse_proxy: "{{upstreams}} 9980"
 
   db:
     image: postgres:latest
