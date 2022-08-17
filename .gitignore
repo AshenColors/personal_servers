@@ -1,3 +1,5 @@
 *.sec
 *.env
 .vscode/*
+boringproxy/backup-dockerfile
+.gitignore

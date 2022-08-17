@@ -9,6 +9,7 @@ services:
     # see: https://github.com/nextcloud/documentation/blob/master/admin_manual/configuration_server/reverse_proxy_configuration.rst  
     labels:
       caddy: "${REAL_DOMAIN}"
+      caddy.tls.dns: "vultr ${VULTR_API_TOKEN}"
       caddy.header: /*
       caddy.header.Strict-Transport-Security: '"max-age=15552000;"'
       caddy.redir_0: /nextcloud /nextcloud/ 301
@@ -40,6 +41,18 @@ services:
     depends_on:
       - db
       - redis
+
+  collabora:
+    image: collabora/code 
+    networks:
+      - default
+    environment:
+      - 'extra_params=--o:ssl.enable=false'
+    labels:
+      caddy: "collabora.${REAL_DOMAIN}"
+      caddy.header: /*
+      caddy.header.Strict-Transport-Security: '"max-age=15552000;"'
+      caddy.reverse_proxy: "{{upstreams}} 9980"
 
   db:
     image: postgres:latest

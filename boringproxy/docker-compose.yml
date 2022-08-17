@@ -1,0 +1,20 @@
+version: '3.7'
+services:
+  client:
+    build: .
+    command: client -server bp.$REAL_DOMAIN -token $BP_TOKEN -client-name rpiavalon -cert-dir /certmagic -acme-email $EMAIL -acme-certificate-authority https://acme.zerossl.com/v2/DV90
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      caddy:
+    volumes:
+      - certmagic:/certmagic
+      - /etc/ssl/certs/:/etc/ssl/certs/:ro
+
+networks:
+  caddy:
+    external: true
+
+volumes:
+  certmagic:
