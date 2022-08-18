@@ -1,0 +1,24 @@
+version: '3'
+services:
+    code:
+        image: collabora/code:latest
+        restart: unless-stopped
+        environment:
+            - aliasgroup1=https://nc.$DOMAIN.$TLD:443,https://nc\\.$DOMAIN\\.$TLD|nc\\.$DOMAIN\\.$TLD:443 
+            - domain=nc\\.$DOMAIN\\.$TLD
+            - server_name=collabora.$DOMAIN.$TLD
+            - usename=${COLLABORA_USERNAME}
+            - password=${COLLABORA_PASSWORD}
+            - "extra_params=--o:ssl.enable=false --o:ssl.termination=true"
+        env_file:
+            - .env
+        networks:
+            caddy:
+        labels:
+            caddy: collabora.$DOMAIN.$TLD
+            caddy.tls.dns: vultr $VULTR_API
+            caddy.reverse_proxy: "{{upstreams http 9980}}"
+
+networks:
+    caddy:
+        external: true
