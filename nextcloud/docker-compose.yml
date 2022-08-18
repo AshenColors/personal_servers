@@ -8,17 +8,16 @@ services:
       - default        
     # see: https://github.com/nextcloud/documentation/blob/master/admin_manual/configuration_server/reverse_proxy_configuration.rst  
     labels:
-      caddy: "${REAL_DOMAIN}"
+      caddy: "nc.${REAL_DOMAIN}"
       caddy.tls.dns: "vultr ${VULTR_API_TOKEN}"
       caddy.header: /*
       caddy.header.Strict-Transport-Security: '"max-age=15552000;"'
-      caddy.redir_0: /nextcloud /nextcloud/ 301
-      caddy.redir_1: /.well-known/carddav /nextcloud/remote.php/dav 301
-      caddy.redir_2: /.well-known/caldav /nextcloud/remote.php/dav 301
-      caddy.redir_3: /.well-known/webfinger /nextcloud/index.php/.well-known/webfinger 301
-      caddy.redir_4: /.well-known/nodeinfo  /nextcloud/index.php/.well-known/nodeinfo 301
-      caddy.handle_path: /nextcloud/*
-      caddy.handle_path.0_reverse_proxy: "{{upstreams 80}}"
+      # caddy.header.Content-Security-Policy: "form-action 'self' https://collabora.14641avalon.group;"
+      caddy.redir_0: /.well-known/carddav /remote.php/dav 301
+      caddy.redir_1: /.well-known/caldav /remote.php/dav 301
+      caddy.redir_2: /.well-known/webfinger /index.php/.well-known/webfinger 301
+      caddy.redir_3: /.well-known/nodeinfo  /index.php/.well-known/nodeinfo 301
+      caddy.reverse_proxy: "{{upstreams 80}}"
     volumes:
       - ncdata:/var/www/html
     environment:
@@ -34,27 +33,11 @@ services:
       - APACHE_DISABLE_REWRITE_IP=1
       # See: https://github.com/nextcloud/documentation/issues/7005
       # and: https://old.reddit.com/r/NextCloud/comments/s3skdn/nextcloud_behind_caddy_as_a_reverse_proxy_using/hsnj5wh/
-      - TRUSTED_PROXIES=172.29.0.69
-      - OVERWRITEWEBROOT=/nextcloud
     env_file:
       - .env
     depends_on:
       - db
       - redis
-
-#  collabora:
-#    image: collabora/code 
-#    networks:
-#      - caddy
-#      - default
-#    environment:
-#      - 'extra_params=--o:ssl.enable=false'
-#    labels:
-#      caddy: "collabora.${REAL_DOMAIN}"
-#      caddy.tls.dns: "vultr ${VULTR_API_TOKEN}"
-#      caddy.header: /*
-#      caddy.header.Strict-Transport-Security: '"max-age=15552000;"'
-#      caddy.reverse_proxy: "{{upstreams}} 9980"
 
   db:
     image: postgres:latest
