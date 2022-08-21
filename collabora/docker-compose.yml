@@ -16,7 +16,7 @@ services:
             caddy:
         labels:
             caddy: collabora.$DOMAIN.$TLD
-            caddy.tls.dns: vultr $VULTR_API
+            caddy.tls.dns: vultr $VULTR_TOKEN
             caddy.reverse_proxy: "{{upstreams http 9980}}"
 
 networks:

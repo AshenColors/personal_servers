@@ -9,7 +9,7 @@ services:
     # see: https://github.com/nextcloud/documentation/blob/master/admin_manual/configuration_server/reverse_proxy_configuration.rst  
     labels:
       caddy: "nc.${REAL_DOMAIN}"
-      caddy.tls.dns: "vultr ${VULTR_API_TOKEN}"
+      caddy.tls.dns: vultr $VULTR_TOKEN
       caddy.header: /*
       caddy.header.Strict-Transport-Security: '"max-age=15552000;"'
       # caddy.header.Content-Security-Policy: "form-action 'self' https://collabora.14641avalon.group;"
@@ -33,12 +33,15 @@ services:
       - APACHE_DISABLE_REWRITE_IP=1
       # See: https://github.com/nextcloud/documentation/issues/7005
       # and: https://old.reddit.com/r/NextCloud/comments/s3skdn/nextcloud_behind_caddy_as_a_reverse_proxy_using/hsnj5wh/
+      - NEXTCLOUD_TRUSTED_DOMAINS=$REAL_DOMAIN
+      - TRUSTED_PROXIES=$TRUSTED_PROXIES
+      - OVERWRITEHOST=nc.$REAL_DOMAIN
+      - OVERWRITEPROTOCOL=https
     env_file:
       - .env
     depends_on:
       - db
       - redis
-
   db:
     image: postgres:latest
     environment:
