@@ -7,12 +7,16 @@ My main goals in self-hosting are:
 4. Email, filecloud/collaboration, groupware (calendar/tasks)
 
 BASIC STRUCTURE
-bastion with boringproxy and fail2ban/crowdsec
-behind home NAT, the main hosting server tunneling to boringproxy
+bastion with boringproxy
+TODO: and fail2ban/crowdsec
 caddy RP adds and removes TLS
-nextcloud and whoami are services to be provided
+behind home NAT, the main hosting server provides local service via caddy
+docker container tunnels to boringproxy
+unbound on internal server providing view-based splitbrain DNS to local clients
+TODO: docspell
+TODO: monitoring
+TODO: bring all compose files up to modern standards
+TODO: startup script for stuff like making the initial networks manually
 
-Current plan:
-once i have a home gateway that allows the DNS server to be changed, dnsmasq so NAT loopback works right (currently taking the long route)
 no clever GUI tools this time, so I'll need to set up Promethus (or something) for observability and pretty plots
 also: backups and the "can i spin this repo up on some rando cloud server" test

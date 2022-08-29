@@ -6,7 +6,7 @@ services:
         environment:
             - aliasgroup1=https://nc.$DOMAIN.$TLD:443,https://nc\\.$DOMAIN\\.$TLD|nc\\.$DOMAIN\\.$TLD:443 
             - domain=nc\\.$DOMAIN\\.$TLD
-            - server_name=collabora.$DOMAIN.$TLD
+            - server_name=code.$DOMAIN.$TLD
             - usename=${COLLABORA_USERNAME}
             - password=${COLLABORA_PASSWORD}
             - "extra_params=--o:ssl.enable=false --o:ssl.termination=true"
@@ -15,7 +15,7 @@ services:
         networks:
             caddy:
         labels:
-            caddy: collabora.$DOMAIN.$TLD
+            caddy: code.$DOMAIN.$TLD
             caddy.tls.dns: vultr $VULTR_TOKEN
             caddy.reverse_proxy: "{{upstreams http 9980}}"
 

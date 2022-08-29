@@ -7,10 +7,10 @@ down: boringproxy-down collabora-down nextcloud-down caddy-docker-proxy-down
 
 restart: down up
 
-caddy-docker-proxy whoami nextcloud boringproxy:
+caddy-docker-proxy whoami nextcloud collabora boringproxy:
 	$(MAKE) -C $@ up
 
-boringproxy-down nextcloud-down whoami-down caddy-docker-proxy-down:
+boringproxy-down collabora-down nextcloud-down whoami-down caddy-docker-proxy-down:
 	$(MAKE) -C $(subst -down,,$@) down
 
 .PHONY: up down restart caddy-docker-proxy whoami nextcloud boringproxy collabora collabora-down boringproxy-down nextcloud-down whoami-down caddy-docker-proxy-down
