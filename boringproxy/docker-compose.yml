@@ -1,11 +1,10 @@
-version: '3.7'
+name: boringproxy
+
 services:
   client:
     image: ghcr.io/wgrobler/boringproxy-linux-arm64:latest
-    command: client -server bp.$REAL_DOMAIN -token $BP_TOKEN -client-name rpiavalon -cert-dir /certmagic
+    command: client -server bp.$DOMAIN.$TLD -token $BP_TOKEN -client-name rpiavalon -cert-dir /certmagic
     restart: unless-stopped
-    env_file:
-      - .env
     networks:
       caddy:
     volumes:

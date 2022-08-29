@@ -13,9 +13,11 @@ services:
       - config:/config
     networks:
       caddy:
-        ipv4_address: 172.29.0.69
+        aliases:
+          - rp
     labels:
       caddy.email: ashen@cobaltrain.net
+      caddy.acme_dns: vultr $VULTR_TOKEN
     restart: unless-stopped
 
 networks:

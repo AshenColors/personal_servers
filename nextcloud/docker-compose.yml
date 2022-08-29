@@ -1,4 +1,4 @@
-version: "3"
+name: nextcloud
 services:
   app:
     image: nextcloud:latest
@@ -8,8 +8,7 @@ services:
       - default        
     # see: https://github.com/nextcloud/documentation/blob/master/admin_manual/configuration_server/reverse_proxy_configuration.rst  
     labels:
-      caddy: "nc.${REAL_DOMAIN}"
-      caddy.tls.dns: vultr $VULTR_TOKEN
+      caddy: nc.$DOMAIN.$TLD
       caddy.header: /*
       caddy.header.Strict-Transport-Security: '"max-age=15552000;"'
       # caddy.header.Content-Security-Policy: "form-action 'self' https://collabora.14641avalon.group;"
@@ -23,8 +22,8 @@ services:
     environment:
       - POSTGRES_HOST=db
       - POSTGRES_DB=nextcloud
-      - POSTGRES_USER=$DB_USER
-      - POSTGRES_PASSWORD=$DB_PASS
+      - POSTGRES_USER=$NC_DB_USER
+      - POSTGRES_PASSWORD=$NC_DB_PASS
       - REDIS_HOST=redis
       - SMTP_HOST=smtp.sendgrid.net 
       - SMTP_NAME=apikey
@@ -33,20 +32,18 @@ services:
       - APACHE_DISABLE_REWRITE_IP=1
       # See: https://github.com/nextcloud/documentation/issues/7005
       # and: https://old.reddit.com/r/NextCloud/comments/s3skdn/nextcloud_behind_caddy_as_a_reverse_proxy_using/hsnj5wh/
-      - NEXTCLOUD_TRUSTED_DOMAINS=$REAL_DOMAIN
+      - NEXTCLOUD_TRUSTED_DOMAINS=nc.$DOMAIN.$TLD
       - TRUSTED_PROXIES=$TRUSTED_PROXIES
-      - OVERWRITEHOST=nc.$REAL_DOMAIN
+      - OVERWRITEHOST=nc.$DOMAIN.$TLD
       - OVERWRITEPROTOCOL=https
-    env_file:
-      - .env
     depends_on:
       - db
       - redis
   db:
     image: postgres:latest
     environment:
-      POSTGRES_USER: $DB_USER
-      POSTGRES_PASSWORD: $DB_PASS
+      POSTGRES_USER: $NC_DB_USER
+      POSTGRES_PASSWORD: $NC_DB_PASS
     volumes:
       - dbdata:/var/lib/postgresql/data
     networks:
