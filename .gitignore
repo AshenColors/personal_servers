@@ -3,3 +3,4 @@
 .vscode/*
 .gitignore
 boringproxy/boringproxy-linux-arm64
+docspell/docs

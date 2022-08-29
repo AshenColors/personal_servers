@@ -1,0 +1,147 @@
+name: docspell
+
+services:
+  # The restserver and joex containers defined here are configured
+  # using env variables. Both must connect to the same database and
+  # solr instance. More information on configuring can be found here:
+  # https://docspell.org/docs/configure
+  #
+  # Please replace the values of the following with a custom secret
+  # string:
+  #
+  # - DOCSPELL_SERVER_ADMIN__ENDPOINT_SECRET
+  # - DOCSPELL_SERVER_AUTH_SERVER__SECRET
+  # - DOCSPELL_SERVER_INTEGRATION__ENDPOINT_HTTP__HEADER_HEADER__VALUE
+  #   (use the same value at the consumedir container!)
+  #
+  # After creating an account, you may want to set signup mode to
+  # "closed" or to "invite". When using invite, you must also set
+  # DOCSPELL_SERVER_BACKEND_SIGNUP_NEW__INVITE__PASSWORD to some
+  # secret.
+  restserver:
+    image: docspell/restserver:latest
+    command:
+      - /docspell_server
+    configs:
+      - docspell_server
+    restart: unless-stopped
+    networks:
+      - caddy
+      - default
+    labels:
+      caddy: docspell.$DOMAIN.$TLD
+      caddy.reverse_proxy: "{{upstreams http 7880}}"
+    environment:
+      - TZ=America/Chicago
+    depends_on:
+      - solr
+      - db
+
+  joex:
+    image: docspell/joex:latest
+    ## For more memory add corresponding arguments, like below. Also see
+    ## https://docspell.org/docs/configure/#jvm-options
+    # command:
+    #   - -J-Xmx3G
+    command:
+      - /docspell_joex
+    configs:
+      - docspell_joex
+    restart: unless-stopped
+    networks:
+      - default
+    environment:
+      - TZ=America/Chicago
+    depends_on:
+      - solr
+      - db
+    ## Uncomment when using the "docker" runner with addons
+    # volumes:
+    #   - /var/run/docker.sock:/var/run/docker.sock
+    #   - /tmp:/tmp
+
+  # The consumedir container watches a directory for files to upload
+  # to docspell restserver. This uses the `dsc` tool. For information
+  # on the available options, see `dsc --help`.
+  # https://github.com/docspell/dsc
+  #
+  # The value after `Docspell-Integration` must match the secret
+  # specified at the restserver via
+  # DOCSPELL_SERVER_INTEGRATION__ENDPOINT_HTTP__HEADER_HEADER__VALUE.
+  #
+  # The --not-matches "**/.*" option is to exclude hidden files.
+  consumedir:
+    image: docspell/dsc:latest
+    container_name: docspell-consumedir
+    command:
+      - dsc
+      - "-d"
+      - "http://restserver:7880"
+      - "watch"
+      - "--delete"
+      - "-ir"
+      - "--not-matches"
+      - "**/.*"
+      - "--header"
+      - "Docspell-Integration:$DS_INTEGRATION_PASS"
+      - "/opt/docs"
+    restart: unless-stopped
+    volumes:
+      - ./docs:/opt/docs
+    depends_on:
+      - restserver
+
+  db:
+    image: postgres:latest
+    restart: unless-stopped
+    volumes:
+      - db_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=docspell
+      - POSTGRES_PASSWORD=$DS_DB_PASS
+      - POSTGRES_DB=docspell
+
+  solr:
+    image: solr:latest
+    restart: unless-stopped
+    networks:
+      - default
+    volumes:
+      - solr_data:/var/solr
+    command:
+      - solr-precreate
+      - docspell
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8983/solr/docspell/admin/ping"]
+      interval: 1m
+      timeout: 10s
+      retries: 2
+      start_period: 30s
+
+  hp-scan-destination:
+    image: manuc66/node-hp-scan-to
+    hostname: docspell
+    environment:
+      - IP=192.168.0.12
+      - PATTERN="scan"_dd.mm.yyyy_hh:MM:ss
+      - PGID=1000
+      - PUID=1000
+      - TZ=America/Chicago
+    volumes:
+      - ./docs/avalon:/scan
+    restart: unless-stopped
+
+volumes:
+  db_data:
+  solr_data:
+
+networks:
+  caddy: 
+    external: true
+  default:
+
+configs:
+  docspell_server:
+    file: ./docspell.server.conf
+  docspell_joex:
+    file: ./docspell.joex.conf

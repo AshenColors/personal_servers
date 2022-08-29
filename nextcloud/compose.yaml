@@ -4,8 +4,10 @@ services:
     image: nextcloud:latest
     restart: unless-stopped
     networks:
-      - caddy
-      - default        
+      caddy:
+        aliases:
+          - nc
+      default:
     # see: https://github.com/nextcloud/documentation/blob/master/admin_manual/configuration_server/reverse_proxy_configuration.rst  
     labels:
       caddy: nc.$DOMAIN.$TLD
@@ -22,7 +24,7 @@ services:
     environment:
       - POSTGRES_HOST=db
       - POSTGRES_DB=nextcloud
-      - POSTGRES_USER=$NC_DB_USER
+      - POSTGRES_USER=nextcloud
       - POSTGRES_PASSWORD=$NC_DB_PASS
       - REDIS_HOST=redis
       - SMTP_HOST=smtp.sendgrid.net 
@@ -36,13 +38,14 @@ services:
       - TRUSTED_PROXIES=$TRUSTED_PROXIES
       - OVERWRITEHOST=nc.$DOMAIN.$TLD
       - OVERWRITEPROTOCOL=https
+      - OVERWRITECLIURL=https://nc.$DOMAIN.$TLD
     depends_on:
       - db
       - redis
   db:
     image: postgres:latest
     environment:
-      POSTGRES_USER: $NC_DB_USER
+      POSTGRES_USER: nextcloud
       POSTGRES_PASSWORD: $NC_DB_PASS
     volumes:
       - dbdata:/var/lib/postgresql/data
